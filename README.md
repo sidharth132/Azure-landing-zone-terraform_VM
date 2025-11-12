@@ -1,0 +1,1 @@
+# Azure-landing-zone-terraform_VM
