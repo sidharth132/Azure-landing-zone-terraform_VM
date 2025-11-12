@@ -11,7 +11,7 @@ variables:
   ARM_CLIENT_ID: '7a313164-9349-4ce2-9d44-e5a3e570f63c'
   ARM_TENANT_ID: 'ae5039ee-38bc-4c65-9a13-5cf76c9ae444'
   ARM_SUBSCRIPTION_ID: 'c03f6878-4621-428c-b360-d9282cbb1a98'
-  # ⚠️ Add ARM_CLIENT_SECRET as a secret variable in Azure DevOps → Variables tab
+  # ⚠️ Add ARM_CLIENT_SECRET as a secret variable in Azure DevOps → Variables tab (mark as secret)
 
 stages:
 # -------------------------------------------------------------
@@ -43,18 +43,21 @@ stages:
       steps:
         - checkout: self
 
-        # ✅ Use PowerShell for Windows compatibility
+        # ✅ FIXED: Proper variable syntax for PowerShell
         - powershell: |
             Write-Host "🔐 Azure Login..."
-            az login --service-principal -u $(ARM_CLIENT_ID) -p $(ARM_CLIENT_SECRET) --tenant $(ARM_TENANT_ID)
-            az account set --subscription $(ARM_SUBSCRIPTION_ID)
+            az login --service-principal `
+              -u "$(ARM_CLIENT_ID)" `
+              -p "$(ARM_CLIENT_SECRET)" `
+              --tenant "$(ARM_TENANT_ID)"
+            az account set --subscription "$(ARM_SUBSCRIPTION_ID)"
             Write-Host "✅ Azure login successful!"
           displayName: "Azure Login"
           env:
             ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
 
         - powershell: |
-            cd $(TF_WORKING_DIR)
+            cd "$(TF_WORKING_DIR)"
             terraform init `
               -backend-config="resource_group_name=rg_strg" `
               -backend-config="storage_account_name=strgfortfstate" `
@@ -63,12 +66,12 @@ stages:
           displayName: "Terraform Init"
 
         - powershell: |
-            cd $(TF_WORKING_DIR)
+            cd "$(TF_WORKING_DIR)"
             terraform validate
           displayName: "Terraform Validate"
 
         - powershell: |
-            cd $(TF_WORKING_DIR)
+            cd "$(TF_WORKING_DIR)"
             terraform plan -out=tfplan
           displayName: "Terraform Plan"
 
@@ -115,8 +118,11 @@ stages:
 
         - powershell: |
             Write-Host "🔐 Azure Login..."
-            az login --service-principal -u $(ARM_CLIENT_ID) -p $(ARM_CLIENT_SECRET) --tenant $(ARM_TENANT_ID)
-            az account set --subscription $(ARM_SUBSCRIPTION_ID)
+            az login --service-principal `
+              -u "$(ARM_CLIENT_ID)" `
+              -p "$(ARM_CLIENT_SECRET)" `
+              --tenant "$(ARM_TENANT_ID)"
+            az account set --subscription "$(ARM_SUBSCRIPTION_ID)"
             Write-Host "✅ Azure login successful!"
           displayName: "Azure Login"
           env:
@@ -126,6 +132,6 @@ stages:
           artifact: tfplan
 
         - powershell: |
-            cd $(TF_WORKING_DIR)
+            cd "$(TF_WORKING_DIR)"
             terraform apply -auto-approve tfplan
           displayName: "Terraform Apply"
