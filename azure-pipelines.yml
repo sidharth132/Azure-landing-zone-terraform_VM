@@ -1,5 +1,3 @@
-# Azure DevOps Pipeline: Terraform Plan & Apply with Manual Approval
-# Triggers on changes to feature/* or main branches
 trigger:
   branches:
     include:
@@ -17,10 +15,25 @@ variables:
 
 stages:
 # -------------------------------------------------------------
+# 0️⃣ Test Stage (to verify Self-hosted agent)
+# -------------------------------------------------------------
+- stage: Test
+  displayName: "Test Stage"
+  jobs:
+    - job: echo
+      displayName: "Test Job"
+      pool:
+        name: Self-hosted
+      steps:
+        - script: echo "✅ Multi-stage pipeline working!"
+          displayName: "Test Step"
+
+# -------------------------------------------------------------
 # 1️⃣ Terraform Init / Validate / Plan
 # -------------------------------------------------------------
 - stage: Terraform_Plan
   displayName: "Terraform Init, Validate & Plan"
+  dependsOn: Test
   jobs:
     - job: plan
       displayName: "Terraform Plan"
