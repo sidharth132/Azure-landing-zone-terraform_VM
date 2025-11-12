@@ -46,9 +46,9 @@ stages:
         - script: |
             echo "🔐 Azure Login..."
             az login --service-principal \
-              -u $(ARM_CLIENT_ID) \
-              -p $(ARM_CLIENT_SECRET) \
-              --tenant $(ARM_TENANT_ID)
+              -u $(ARM_CLIENT_ID) \7a313164-9349-4ce2-9d44-e5a3e570f63c
+              -p $(ARM_CLIENT_SECRET) \Self-hosted
+              --tenant $(ARM_TENANT_ID) ae5039ee-38bc-4c65-9a13-5cf76c9ae444
             az account set --subscription $(ARM_SUBSCRIPTION_ID)
             echo "✅ Azure login successful!"
           displayName: "Azure Login"
