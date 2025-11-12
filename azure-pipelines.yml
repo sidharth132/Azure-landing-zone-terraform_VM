@@ -11,7 +11,7 @@ variables:
   ARM_CLIENT_ID: '7a313164-9349-4ce2-9d44-e5a3e570f63c'
   ARM_TENANT_ID: 'ae5039ee-38bc-4c65-9a13-5cf76c9ae444'
   ARM_SUBSCRIPTION_ID: 'c03f6878-4621-428c-b360-d9282cbb1a98'
-  # ⚠️ ARM_CLIENT_SECRET ko Azure DevOps me secret variable ke roop me add karo
+  # ⚠️ Add ARM_CLIENT_SECRET as a secret variable in Azure DevOps → Variables tab
 
 stages:
 # -------------------------------------------------------------
@@ -43,33 +43,31 @@ stages:
       steps:
         - checkout: self
 
-        - script: |
-            echo "🔐 Azure Login..."
-            az login --service-principal \
-              -u $(ARM_CLIENT_ID) \7a313164-9349-4ce2-9d44-e5a3e570f63c
-              -p $(ARM_CLIENT_SECRET) \Self-hosted
-              --tenant $(ARM_TENANT_ID) ae5039ee-38bc-4c65-9a13-5cf76c9ae444
+        # ✅ Use PowerShell for Windows compatibility
+        - powershell: |
+            Write-Host "🔐 Azure Login..."
+            az login --service-principal -u $(ARM_CLIENT_ID) -p $(ARM_CLIENT_SECRET) --tenant $(ARM_TENANT_ID)
             az account set --subscription $(ARM_SUBSCRIPTION_ID)
-            echo "✅ Azure login successful!"
+            Write-Host "✅ Azure login successful!"
           displayName: "Azure Login"
           env:
             ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
 
-        - script: |
+        - powershell: |
             cd $(TF_WORKING_DIR)
-            terraform init \
-              -backend-config="resource_group_name=rg_strg" \
-              -backend-config="storage_account_name=strgfortfstate" \
-              -backend-config="container_name=tfstate" \
+            terraform init `
+              -backend-config="resource_group_name=rg_strg" `
+              -backend-config="storage_account_name=strgfortfstate" `
+              -backend-config="container_name=tfstate" `
               -backend-config="key=terraform-tfstate"
           displayName: "Terraform Init"
 
-        - script: |
+        - powershell: |
             cd $(TF_WORKING_DIR)
             terraform validate
           displayName: "Terraform Validate"
 
-        - script: |
+        - powershell: |
             cd $(TF_WORKING_DIR)
             terraform plan -out=tfplan
           displayName: "Terraform Plan"
@@ -115,14 +113,11 @@ stages:
       steps:
         - checkout: self
 
-        - script: |
-            echo "🔐 Azure Login..."
-            az login --service-principal \
-              -u $(ARM_CLIENT_ID) \
-              -p $(ARM_CLIENT_SECRET) \
-              --tenant $(ARM_TENANT_ID)
+        - powershell: |
+            Write-Host "🔐 Azure Login..."
+            az login --service-principal -u $(ARM_CLIENT_ID) -p $(ARM_CLIENT_SECRET) --tenant $(ARM_TENANT_ID)
             az account set --subscription $(ARM_SUBSCRIPTION_ID)
-            echo "✅ Azure login successful!"
+            Write-Host "✅ Azure login successful!"
           displayName: "Azure Login"
           env:
             ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
@@ -130,7 +125,7 @@ stages:
         - download: current
           artifact: tfplan
 
-        - script: |
+        - powershell: |
             cd $(TF_WORKING_DIR)
             terraform apply -auto-approve tfplan
           displayName: "Terraform Apply"
