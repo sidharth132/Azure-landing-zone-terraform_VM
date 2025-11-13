@@ -6,7 +6,7 @@ pool:
 
 steps:
   # Step 1: Terraform Init
-  - task: TerraformTaskV5@5
+  - task: TerraformTask@5
     displayName: "Terraform Init"
     inputs:
       provider: 'azurerm'
@@ -20,7 +20,7 @@ steps:
       backendAzureRmKey: 'terraform.tfstate'
 
   # Step 2: Terraform Validate
-  - task: TerraformTaskV5@5
+  - task: TerraformTask@5
     displayName: "Terraform Validate"
     inputs:
       provider: 'azurerm'
@@ -28,7 +28,7 @@ steps:
       workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module/dev'
 
   # Step 3: Terraform Plan
-  - task: TerraformTaskV5@5
+  - task: TerraformTask@5
     displayName: "Terraform Plan"
     inputs:
       provider: 'azurerm'
@@ -37,11 +37,15 @@ steps:
       environmentServiceNameAzureRM: 'Self-hosted'
 
   # Step 4: Terraform Apply
-  - task: TerraformTaskV5@5
+  - task: TerraformTask@5
     displayName: "Terraform Apply"
     inputs:
       provider: 'azurerm'
       command: 'apply'
       workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module/dev'
       environmentServiceNameAzureRM: 'Self-hosted'
+
+
+
+
       
