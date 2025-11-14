@@ -1,10 +1,10 @@
 trigger: none
-  #- feature/*
-  
+
 pool:
   name: Self-hosted
 
 stages:
+# ---------------------- Build Stage ----------------------
 - stage: Build
   jobs:
   - job: BuildJob
@@ -14,7 +14,6 @@ stages:
         inputs:
           terraformVersion: 'latest'
       
-      # Step 1: Terraform Init
       - task: TerraformTask@5
         displayName: "Terraform Init"
         inputs:
@@ -27,8 +26,7 @@ stages:
           backendAzureRmStorageAccountName: 'strgfortfstate'
           backendAzureRmContainerName: 'tfstate'
           backendAzureRmKey: 'terraform.tfstate'
-      
-      # Step 2: Terraform Validate
+
       - task: TerraformTask@5
         displayName: "Terraform Validate"
         inputs:
@@ -36,7 +34,6 @@ stages:
           command: 'validate'
           workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module/dev'
 
-      # Step 3: Terraform Plan
       - task: TerraformTask@5
         displayName: "Terraform Plan"
         inputs:
@@ -44,16 +41,45 @@ stages:
           command: 'plan'
           workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module/dev'
           environmentServiceNameAzureRM: 'Self-hosted'
-          
+
+
+# ---------------------- Approval Stage ----------------------
 - stage: Approval
+  dependsOn: Build   # Stage-level dependency (Correct)
+  pool: server
   jobs:
-  - job: Approval
+  - job: ApprovalJob    # ❗ No dependsOn here
     steps:
-     - task: 
-  
-  
+    - task: ManualValidation@1
+      inputs:
+        notifyUsers: 'sidharth13feb@gmail.com'
+        approvers: 'sidharth13feb@gmail.com'
+        allowApproversToApproveTheirOwnRuns: true
+
+
+# ---------------------- Deploy Stage ----------------------
+- stage: deploy
+  dependsOn: Approval
+  jobs:
+  - job: DeployJob
+    steps:
+      - task: TerraformInstaller@1
+        inputs:
+          terraformVersion: 'latest'
       
-      # Step 4: Terraform Apply
+      - task: TerraformTask@5
+        displayName: "Terraform Init"
+        inputs:
+          provider: 'azurerm'
+          command: 'init'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module/dev'
+          backendServiceArm: 'Self-hosted'
+          backendAzureRmOverrideSubscriptionID: 'c03f6878-4621-428c-b360-d9282cbb1a98'
+          backendAzureRmResourceGroupName: 'rg_strg'
+          backendAzureRmStorageAccountName: 'strgfortfstate'
+          backendAzureRmContainerName: 'tfstate'
+          backendAzureRmKey: 'terraform.tfstate'
+
       - task: TerraformTask@5
         displayName: "Terraform Apply"
         inputs:
