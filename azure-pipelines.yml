@@ -52,8 +52,8 @@ stages:
     steps:
     - task: ManualValidation@1
       inputs:
-        notifyUsers: 'sidharth13feb@gmail.com'
-        approvers: 'sidharth13feb@gmail.com'
+        notifyUsers: 'kanchan72302@gmail.com'
+        approvers: 'kanchan72302@gmail.com'
         allowApproversToApproveTheirOwnRuns: true
 
 
