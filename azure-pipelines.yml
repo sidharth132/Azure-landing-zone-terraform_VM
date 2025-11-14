@@ -1,50 +1,63 @@
-trigger:
-  - main
-
+trigger: none
+  #- feature/*
+  
 pool:
   name: Self-hosted
 
-steps:
-- task: TerraformInstaller@1
-  inputs:
-    terraformVersion: 'latest'
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    steps:
 
-# Step 1: Terraform Init
-- task: TerraformTask@5
-  displayName: "Terraform Init"
-  inputs:
-    provider: 'azurerm'
-    command: 'init'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module/dev'
-    backendServiceArm: 'Self-hosted'
-    backendAzureRmOverrideSubscriptionID: 'c03f6878-4621-428c-b360-d9282cbb1a98'
-    backendAzureRmResourceGroupName: 'rg_strg'
-    backendAzureRmStorageAccountName: 'strgfortfstate'
-    backendAzureRmContainerName: 'tfstate'
-    backendAzureRmKey: 'terraform.tfstate'
+      - task: TerraformInstaller@1
+        inputs:
+          terraformVersion: 'latest'
+      
+      # Step 1: Terraform Init
+      - task: TerraformTask@5
+        displayName: "Terraform Init"
+        inputs:
+          provider: 'azurerm'
+          command: 'init'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module/dev'
+          backendServiceArm: 'Self-hosted'
+          backendAzureRmOverrideSubscriptionID: 'c03f6878-4621-428c-b360-d9282cbb1a98'
+          backendAzureRmResourceGroupName: 'rg_strg'
+          backendAzureRmStorageAccountName: 'strgfortfstate'
+          backendAzureRmContainerName: 'tfstate'
+          backendAzureRmKey: 'terraform.tfstate'
+      
+      # Step 2: Terraform Validate
+      - task: TerraformTask@5
+        displayName: "Terraform Validate"
+        inputs:
+          provider: 'azurerm'
+          command: 'validate'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module/dev'
 
-# Step 2: Terraform Validate
-- task: TerraformTask@5
-  displayName: "Terraform Validate"
-  inputs:
-    provider: 'azurerm'
-    command: 'validate'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module/dev'
-
-# Step 3: Terraform Plan
-- task: TerraformTask@5
-  displayName: "Terraform Plan"
-  inputs:
-    provider: 'azurerm'
-    command: 'plan'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module/dev'
-    environmentServiceNameAzureRM: 'Self-hosted'
-
-# Step 4: Terraform Apply
-- task: TerraformTask@5
-  displayName: "Terraform Apply"
-  inputs:
-    provider: 'azurerm'
-    command: 'apply'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module/dev'
-    environmentServiceNameAzureRM: 'Self-hosted'
+      # Step 3: Terraform Plan
+      - task: TerraformTask@5
+        displayName: "Terraform Plan"
+        inputs:
+          provider: 'azurerm'
+          command: 'plan'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module/dev'
+          environmentServiceNameAzureRM: 'Self-hosted'
+          
+- stage: Approval
+  jobs:
+  - job: Approval
+    steps:
+     - task: 
+  
+  
+      
+      # Step 4: Terraform Apply
+      - task: TerraformTask@5
+        displayName: "Terraform Apply"
+        inputs:
+          provider: 'azurerm'
+          command: 'apply'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module/dev'
+          environmentServiceNameAzureRM: 'Self-hosted'
