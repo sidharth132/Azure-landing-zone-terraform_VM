@@ -8,8 +8,8 @@ resource "azurerm_resource_group" "rg" {
   tags = {
     environment = each.value.tags.environment
     owner       = each.value.tags.owner
- 
-  }
+   
+   }
 }
 
 
