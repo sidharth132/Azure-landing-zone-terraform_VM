@@ -56,7 +56,20 @@ stages:
 #         approvers: 'kanchan72302@gmail.com'
 #         allowApproversToApproveTheirOwnRuns: true
 
+- stage: scanning
+  jobs:
+  - job: scanning
+    steps:
 
+      - task: TerraformInstaller@1
+        inputs:
+          terraformVersion: 'latest'
+      - task: PowerShell@2
+        inputs:
+          filePath: 'tflint'
+      - task: PowerShell@2
+        inputs:
+          filePath: 'tfsec'
 # ---------------------- Deploy Stage ----------------------
 - stage: deploy
   dependsOn: Build
