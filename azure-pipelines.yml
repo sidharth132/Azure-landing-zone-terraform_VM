@@ -72,7 +72,6 @@ stages:
           filePath: 'tfsec'
 # ---------------------- Deploy Stage ----------------------
 - stage: deploy
-  dependsOn: Build
   jobs:
   - job: DeployJob
     steps:
