@@ -43,23 +43,23 @@ stages:
           environmentServiceNameAzureRM: 'Self-hosted'
 
 
-# ---------------------- Approval Stage ----------------------
-- stage: Approval
-  dependsOn: Build   # Stage-level dependency (Correct)
-  pool: server
-  jobs:
-  - job: ApprovalJob    # ❗ No dependsOn here
-    steps:
-    - task: ManualValidation@1
-      inputs:
-        notifyUsers: 'kanchan72302@gmail.com'
-        approvers: 'kanchan72302@gmail.com'
-        allowApproversToApproveTheirOwnRuns: true
+# # ---------------------- Approval Stage ----------------------
+# - stage: Approval
+#   dependsOn: Build   # Stage-level dependency (Correct)
+#   pool: server
+#   jobs:
+#   - job: ApprovalJob    # ❗ No dependsOn here
+#     steps:
+#     - task: ManualValidation@1
+#       inputs:
+#         notifyUsers: 'kanchan72302@gmail.com'
+#         approvers: 'kanchan72302@gmail.com'
+#         allowApproversToApproveTheirOwnRuns: true
 
 
 # ---------------------- Deploy Stage ----------------------
 - stage: deploy
-  dependsOn: Approval
+  dependsOn: Build
   jobs:
   - job: DeployJob
     steps:
